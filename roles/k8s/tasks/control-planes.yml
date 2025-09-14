@@ -1,0 +1,11 @@
+- name: Bootstrap Kubernetes controllers
+  become: true
+
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name:
+          - kubectl
+          - kubeadm
+        state: present
+        update_cache: yes

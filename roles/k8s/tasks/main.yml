@@ -1,6 +1,4 @@
----
 - name: Add Kubernetes apt repository
-  hosts: all
   become: true
       
   tasks:
@@ -30,7 +28,7 @@
       ansible.builtin.command:
         cmd: "gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/kubernetes-apt-keyring.asc"
 
-    - name: Add Kubernetes apt repository
+    - name: Add repository
       ansible.builtin.apt_repository:
         repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/ /"
         state: present
@@ -39,72 +37,20 @@
       ansible.builtin.apt:
         update_cache: yes
 
-- name: Bootstrap jumpbox
-  hosts: jumpbox
-  become: true
-  tasks:
-    
-    - name: Install utilities
-      apt:
-        name:
-          - kubectl
-          - haproxy
-        state: present
-        update_cache: true
-      
-    - name: Add HAProxy config
-      template:
-        src: haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
-        owner: root
-        group: root
-        mode: '0644'
-      notify: Restart HAProxy
+- include_tasks: control-planes.yml
+  when: "'control_planes' in group_names"
 
-    - name: Ensure HAProxy service is started and enabled
-      systemd:
-        name: haproxy
-        enabled: true
-        state: started
+- include_tasks: workers.yml
+  when: "'workers' in group_names"
 
-- name: Bootstrap Kubernetes controllers
-  hosts: control_planes
-  become: true
+- include_tasks: jumpbox.yml
+  when: "'jumpbox' in group_names"
 
-  tasks:
-    - name: Install prerequisites
-      apt:
-        name:
-          - kubectl
-          - kubeadm
-        state: present
-        update_cache: yes
+- include_tasks: init-cluster.yml
+  when: inventory_hostname == 'morgue-01'
 
-- name: Bootstrap Kubernetes workers
-  hosts: workers
-  become: true
+- include_tasks: join-control-planes.yml
+  when: "'control_planes' in group_names"
 
-  tasks:
-    - name: Install prerequisites
-      apt:
-        name:
-          - socat
-          - conntrack
-          - ipset
-          - kmod
-          - kubelet
-          - kubectl
-          - containerd
-        state: present
-        update_cache: yes
-
-    - name: Comment out swap in /etc/fstab to disable
-      ansible.builtin.lineinfile:
-        path: /etc/fstab
-        regexp: '^\s*/swap.img\s+none\s+swap'
-        line: '#\g<0>'
-        backrefs: yes
-        state: present
-
-    - name: Turn swap off immediately
-      ansible.builtin.command: swapoff -a
+- include_tasks: join-workers.yml
+  when: "'workers' in group_names"

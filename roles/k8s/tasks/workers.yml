@@ -1,0 +1,27 @@
+- name: Bootstrap Kubernetes workers
+  become: true
+
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name:
+          - socat
+          - conntrack
+          - ipset
+          - kmod
+          - kubelet
+          - kubectl
+          - containerd
+        state: present
+        update_cache: yes
+
+    - name: Comment out swap in /etc/fstab to disable
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^\s*/swap.img\s+none\s+swap'
+        line: '#\g<0>'
+        backrefs: yes
+        state: present
+
+    - name: Turn swap off immediately
+      ansible.builtin.command: swapoff -a

@@ -1,0 +1,10 @@
+- name: Join other control planes
+  become: true
+  tasks:
+
+    - name: Skip first
+      meta: end_host
+      when: inventory_hostname == "morgue-01"
+
+    - name: Join control plane node
+      command: "{{ hostvars['control1'].control_plane_join_command }} --control-plane --ignore-preflight-errors=all"
