@@ -1,0 +1,13 @@
+---
+- name: Generate SSH key
+  hosts: jumpbox
+  become: true
+  tasks:
+    - name: Create ed25519 keypair
+      openssh_keypair:
+        path: "~/.ssh/id_ed25519"
+        type: ed25519
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+      register: mykey

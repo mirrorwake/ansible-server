@@ -1,0 +1,4 @@
+---
+kube_version: "v1.34"
+ubuntu_version: "noble"
+tailscale_key_url: "https://pkgs.tailscale.com/stable/ubuntu/{{ ubuntu_version }}.noarmor.gpg"

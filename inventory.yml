@@ -1,0 +1,28 @@
+---
+all:
+  hosts:
+    graveyard:
+      ansible_host: 192.168.123.10
+      ansible_connection: local
+      fqdn: graveyard.kubernetes.local
+    morgue-01:
+      ansible_host: 192.168.123.11
+      fqdn: morgue-01.kubernetes.local
+      pod_subnet: 10.200.1.0/24
+    morgue-02:
+      ansible_host: 192.168.123.12
+      fqdn: morgue-02.kubernetes.local
+      pod_subnet: 10.200.2.0/24
+
+  children:
+    jumpbox:
+      hosts:
+        graveyard: {}
+    control_planes:
+      hosts:
+        morgue-01: {}
+        morgue-02: {}
+    workers:
+      hosts:
+        morgue-01: {}
+        morgue-02: {}
