@@ -1,0 +1,13 @@
+- name: Check if ansible user exists
+  command: getent passwd ansible
+  register: ansible_user_check
+  ignore_errors: true
+
+- name: Create ansible user if missing
+  become: true
+  user:
+    name: ansible
+    groups: sudo
+    create_home: yes
+    shell: /bin/bash
+  when: ansible_user_check.rc != 0

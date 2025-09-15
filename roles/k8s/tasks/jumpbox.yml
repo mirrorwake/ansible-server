@@ -1,26 +1,22 @@
-- name: Bootstrap jumpbox
-  become: true
-  tasks:
+- name: Install utilities
+  apt:
+    name:
+      - kubectl
+      - haproxy
+    state: present
+    update_cache: true
     
-    - name: Install utilities
-      apt:
-        name:
-          - kubectl
-          - haproxy
-        state: present
-        update_cache: true
-      
-    - name: Add HAProxy config
-      template:
-        src: haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
-        owner: root
-        group: root
-        mode: '0644'
-      notify: Restart HAProxy
+- name: Add HAProxy config
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart HAProxy
 
-    - name: Ensure HAProxy service is started and enabled
-      systemd:
-        name: haproxy
-        enabled: true
-        state: started
+- name: Ensure HAProxy service is started and enabled
+  systemd:
+    name: haproxy
+    enabled: true
+    state: started

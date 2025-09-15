@@ -1,6 +1,3 @@
-- name: Join workers to cluster
-  become: true
-  tasks:
-    - name: Join worker node
-      command: "{{ hostvars['control1'].control_plane_join_command }} --ignore-preflight-errors=all"
+- name: Join worker node
+  command: "{{ hostvars['morgue-01'].control_plane_join_command }} --ignore-preflight-errors=all"
 
