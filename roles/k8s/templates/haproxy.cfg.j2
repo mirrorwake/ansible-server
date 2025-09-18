@@ -15,7 +15,7 @@ defaults
 	timeout	server	1m
 
 frontend k8s-api
-	bind 		*:6433
+	bind	*:6443
 	default_backend	k8s-masters
 
 backend k8s-masters

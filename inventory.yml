@@ -5,6 +5,7 @@ all:
       ansible_host: 192.168.123.10
       ansible_connection: local
       fqdn: graveyard.kubernetes.local
+      lb_priority: 255
     morgue-01:
       ansible_host: 192.168.123.11
       fqdn: morgue-01.kubernetes.local
@@ -16,6 +17,9 @@ all:
 
   children:
     jumpbox:
+      hosts:
+        graveyard: {}
+    load_balancers:
       hosts:
         graveyard: {}
     control_planes:

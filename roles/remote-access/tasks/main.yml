@@ -1,2 +1,0 @@
-- include_tasks: jumpbox.yml
-  when: "'jumpbox' in group_names"

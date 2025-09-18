@@ -3,4 +3,4 @@
   when: inventory_hostname == "morgue-01"
 
 - name: Join control plane node
-  command: "{{ hostvars['morgue-01'].control_plane_join_command }} --control-plane --ignore-preflight-errors=all"
+  command: "{{ lookup('file', ansible_user_dir + '/k8s/join-cluster') }} --control-plane --ignore-preflight-errors=all"

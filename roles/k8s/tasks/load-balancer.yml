@@ -1,0 +1,51 @@
+- name: Install utilities
+  apt:
+    name:
+      - haproxy
+      - keepalived
+    state: present
+    update_cache: true
+    
+- name: Check if Keepalived password is set
+  stat:
+    path: "{{ ansible_user_dir }}/k8s/keepalived-pass"
+  register: keepalived_pass_file
+    
+- name: Set Keepalived password
+  shell: "openssl rand -hex 16 > {{ ansible_user_dir }}/k8s/keepalived-pass"
+  when: not keepalived_pass_file.stat.exists
+  run_once: true
+
+- name: Load Keepalived password
+  set_fact:
+    keepalived_pass: "{{ lookup('file', '{{ ansible_user_dir }}/k8s/keepalived-pass') }}"
+
+- name: Add Keepalived config
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start and enable Keepalived service
+  systemd:
+    name: keepalived
+    enabled: true
+    state: started
+
+- name: Add HAProxy config
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: '0644'
+    validate: 'haproxy -c -f %s'
+  notify: Restart HAProxy
+
+- name: Start and enable HAProxy service
+  systemd:
+    name: haproxy
+    enabled: true
+    state: started

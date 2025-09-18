@@ -1,4 +1,9 @@
 ---
+ansible_user: "root"
 kube_version: "v1.34"
 ubuntu_version: "noble"
 tailscale_key_url: "https://pkgs.tailscale.com/stable/ubuntu/{{ ubuntu_version }}.noarmor.gpg"
+pod_network_cidr: "10.200.0.0/16"
+kubeadm_token: ""
+lb_ip: "192.168.100.1"
+pod_subnet_cidr: "10.200.0.0/16"

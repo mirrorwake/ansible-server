@@ -1,13 +1,6 @@
-- name: Create ed25519 keypair
-  openssh_keypair:
-    path: "~/.ssh/id_ed25519"
-    type: ed25519
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0600'
-  register: mykey
-      
 - name: Install prerequisites
+  become: true
+  delegate_to: "{{ groups['jumpbox'][0] }}"
   apt:
     name:
       - ca-certificates
@@ -18,6 +11,7 @@
     update_cache: yes
 
 - name: Download Tailscale signing key
+  delegate_to: "{{ groups['jumpbox'][0] }}"
   ansible.builtin.get_url:
     url: "{{ tailscale_key_url }}"
     dest: "/usr/share/keyrings/tailscale-archive-keyring.gpg"
@@ -25,14 +19,17 @@
   become: true
 
 - name: Add Tailscale apt repository
+  delegate_to: "{{ groups['jumpbox'][0] }}"
+  become: true
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/ubuntu {{ ubuntu_version }} main"
     state: present
   notify: Update apt cache
 
 - name: Install Tailscale
+  delegate_to: "{{ groups['jumpbox'][0] }}"
+  become: true
   apt:
     name:
       - tailscale
     state: present
-  notify: Pass reminder

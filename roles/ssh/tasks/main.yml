@@ -1,0 +1,50 @@
+- name: Create ansible user if missing
+  become: true
+  user:
+    name: ansible
+    state: present
+    groups: sudo
+    create_home: yes
+    shell: /bin/bash
+
+- name: Allow ansible passwordless sudo
+  become: true
+  copy:
+    dest: /etc/sudoers.d/ansible
+    content: "ansible ALL=(ALL) NOPASSWD:ALL"
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Create SSH directory
+  become: true
+  file:
+    path: /home/ansible/.ssh
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: '0700'
+
+- name: Generate SSH keypair on jumpbox
+  openssh_keypair:
+    path: /home/ansible/.ssh/ansible
+    type: ed25519
+    owner: ansible
+    group: ansible
+    mode: '0600'
+  become: true
+  become_user: ansible
+  delegate_to: "{{ groups['jumpbox'][0] }}"
+  run_once: true
+
+- name: Read public key from jumpbox
+  slurp:
+    src: /home/ansible/.ssh/ansible.pub
+  register: ansible_pubkey
+  delegate_to: "{{ groups['jumpbox'][0] }}"
+  run_once: true
+
+- name: Push public key to all hosts
+  authorized_key:
+    user: ansible
+    key: "{{ ansible_pubkey.content | b64decode }}"

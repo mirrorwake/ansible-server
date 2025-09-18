@@ -2,3 +2,16 @@
   systemd:
     name: haproxy
     state: restarted
+
+- name: Clean join command
+  set_fact:
+    control_plane_join_command: "{{ kubeadm_output.stdout_lines | select('search','kubeadm join') | list | join(' ') }}"
+  notify: Save join command
+
+- name: Save join command
+  copy: 
+    content: "{{ control_plane_join_command }}"
+    dest: "{{ ansible_user_dir }}/k8s/join-cluster"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
