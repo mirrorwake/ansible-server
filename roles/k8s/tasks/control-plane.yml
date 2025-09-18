@@ -1,7 +1,31 @@
 - name: Install prerequisites
   apt:
     name:
+      - containerd
       - kubectl
       - kubeadm
     state: present
     update_cache: yes
+
+- name: Enable and start containerd
+  systemd:
+    name: containerd
+    enabled: true
+    state: started
+
+- name: Enable and start kubelet
+  systemd:
+    name: kubelet
+    enabled: true
+    state: started
+
+- name: Comment out swap in /etc/fstab to disable
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^\s*/swap.img\s+none\s+swap'
+    line: '#\g<0>'
+    backrefs: yes
+    state: present
+
+- name: Turn off swap
+  ansible.builtin.command: swapoff -a

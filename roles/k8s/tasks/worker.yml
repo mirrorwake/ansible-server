@@ -21,3 +21,15 @@
 
 - name: Turn off swap
   ansible.builtin.command: swapoff -a
+
+- name: Enable and start containerd
+  systemd:
+    name: containerd
+    enabled: true
+    state: started
+
+- name: Enable and start kubelet
+  systemd:
+    name: kubelet
+    enabled: true
+    state: started

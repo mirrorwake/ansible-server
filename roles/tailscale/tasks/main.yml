@@ -1,6 +1,6 @@
 - name: Install prerequisites
   become: true
-  delegate_to: "{{ groups['jumpbox'][0] }}"
+  delegate_to: localhost
   apt:
     name:
       - ca-certificates
@@ -11,7 +11,7 @@
     update_cache: yes
 
 - name: Download Tailscale signing key
-  delegate_to: "{{ groups['jumpbox'][0] }}"
+  delegate_to: localhost
   ansible.builtin.get_url:
     url: "{{ tailscale_key_url }}"
     dest: "/usr/share/keyrings/tailscale-archive-keyring.gpg"
@@ -19,7 +19,7 @@
   become: true
 
 - name: Add Tailscale apt repository
-  delegate_to: "{{ groups['jumpbox'][0] }}"
+  delegate_to: localhost
   become: true
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/ubuntu {{ ubuntu_version }} main"
@@ -27,7 +27,7 @@
   notify: Update apt cache
 
 - name: Install Tailscale
-  delegate_to: "{{ groups['jumpbox'][0] }}"
+  delegate_to: localhost
   become: true
   apt:
     name:

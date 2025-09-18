@@ -29,6 +29,8 @@
 - name: Convert key to binary format
   ansible.builtin.command:
     cmd: "gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/kubernetes-apt-keyring.asc"
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 - name: Add repository
   ansible.builtin.apt_repository:
